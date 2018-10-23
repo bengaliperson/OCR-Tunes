@@ -1,0 +1,211 @@
+import json
+
+
+def Login():
+    print ("Hello and welcome to OCRTunes.")
+    Account = (input("Do you have an account?(Y/N)"))
+    if Account == ("Y"):
+        print ("Log in")
+        Access_Account()
+    elif Account == "N":
+        print ("Create an account")
+        createaccount()
+    else:
+        print ("Sorry, I did not understand that.")
+        print ("Please try again.")
+        Login()
+
+
+def openusersfile():
+    with open('users.json') as f:
+        users = json.loads(f.read())
+        return users
+
+
+def Access_Account():
+    username = input("username: ")
+    password = input("password: ")
+    if authenticate(username,password):
+        print("Account found")
+        menu()
+    else:
+        print ("Sorry, no account matches.\n You should try again.")
+        Login()
+
+
+
+def authenticate(whichName,theirPassword):
+    Users = openusersfile()
+    for person in Users:
+        if (person['Username']== whichName):
+            if (person['Password'] == theirPassword):
+                return True
+
+
+
+
+def createaccount():
+    account = {}
+    account['Username'] = input ("Username ")
+    account['DOB'] = str(input("Date Of Birth "))
+    account['Password'] = str(input("Please enter a Password "))
+    account['Favourite_Artist'] = str(input("Favourite_Artist "))
+    account['Favourite_Genre'] = str(input("Favourite_Genre "))
+    add_Record_Account(account)
+    Access_Account()
+
+#def uniqueusername():
+#    filecheck = openusersfile()
+#    for x in range (len(users.json)):
+#        print("{} {}".format(x+1, menu[x]))
+
+
+def add_Record_Account(account):
+    original = openusersfile()
+    original.append(account)
+    with open('users.json','w') as f:
+        f.write(json.dumps(original))
+
+
+
+
+def menu():
+    print ("Welcome!\nHere are you options:")
+    print ("1.Find song\n2.Create playlist\n3.Edit favourite artist or genre.")
+    print ("4.Display all songs.\n5.Generate random playlist with time limit.")
+    print ("6.Generate random playlist of 5 songs in a certain genre.")
+    print ("7.See all songs from an artist and save them.")
+    print ("8.List all genres from OCRTunes.")
+    print ("9. View the playlists that you and other users have created.")
+    print ("10. Exit")
+    choice = input ("Enter your choice: ")
+    if choice == "1":
+        FindSong()
+    elif choice == "2":
+        Createnewplaylist()
+    elif choice == "3":
+        Editinformation()
+    elif choice == "4":
+        Showallsongs()
+    elif choice == "5":
+        GenerateTime()
+    elif choice == "6":
+        Generatefive()
+    elif choice == "7":
+        Artistsongs()
+    elif choice == "8":
+        Listgenres()
+    elif choice == "9":
+        listData()
+    elif choice == "10" or "Exit" or "exit":
+        Login()
+    else:
+        print ("Sorry but you may have entered something wrong.")
+        print ("PLease try again.")
+        menu()
+
+
+def Generatefive():
+    Song = opensongsfile()
+    genre = input("Please enter a genre.")
+    #matched_genre_songs = []
+    #for Song in Songs:
+        #if Song ['genre'] == genre:
+            #matched_genre_songs.append(song)
+    matched_genre_songs = [song for Song in Songs if Song['genre']==genre]
+    matched_genre_songs = matched_genre_songs[:5]
+
+
+def opensongsfile():
+    with open('songs.json') as f:
+        songs = json.loads(f.read())
+        return songs
+
+
+#def FindSong():
+#    Search = str(input("Input the song name using capital letters for each new word. "))
+#    input_file=open('songs.json', 'r')
+
+#def Createnewplaylist():
+#def Editinformation():
+
+
+def Showallsongs():
+    Songs = opensongsfile()
+    SongsArtistOrder = sorted(Songs, key=lambda k: k['SongName'])
+    for Songs in SongsArtistOrder:
+        print("{SongName}  Artist: {Artist}. Genre:{Genre} Length: {Length} ".format(**Songs))
+    menu()
+
+
+
+def Editinformation():
+    print ("Which information would you like to overwrite:\n Genre or Artist?")
+    print ("Press 3 to Exit")
+    information = input("Please input the type to change:")
+    if information == "Genre" or "genre":
+        EditGenre()
+    elif information == "Artist" or "artist":
+        EditArtist()
+    elif information == "3" or "exit" or "Exit":
+        menu()
+    else:
+        print ("Sorry I did not undedrstand this, please try again.")
+        menu()
+
+
+
+def EditArtist():
+    fav_art = input("Please enter your new favourite artist: ")
+    original = openusersfile()
+    original[0]['Favourite_Artist'] = fav_art
+    with open('users.json','w') as f:
+        f.write(json.dumps(original)) #Overwrites the old json file.
+    menu()
+
+
+def EditGenre():
+    fav_gen = input("Please enter your new favourite genre: ")
+    original = openusersfile()
+    original[0]['Favourite_Genre'] = fav_gen
+    with open('users.json','w') as f:
+        f.write(json.dumps(original))
+    menu()
+
+
+
+def add_Record_playlist(playlist):
+        original = openFile()
+        original.append(playlist)
+        with open('playlists.json','w') as f:
+            f.write(json.dumps(original))
+
+def Createnewplaylist():
+    playlist = {}
+    playlist['Playlist'] = input ("Playlist Name: ") #Asks the user to input their playlist's name.
+    def addsong():
+        playlist['Song'] = input ("Please input a song inside songs.json: ") #Asks the user to input the song's name.
+        playlist['Artist'] = input ("Please input the song's artist.")
+        add_Record_playlist(playlist) # Adds the song's name to the playlist.
+        addSong= input("Would you like to add another song?(Y/N)") #Asks the user if they would like to add another song to their playlist.
+        if addSong == "Y":
+            addsong()
+        elif addSong == "N":
+            menu()
+    addsong() #Runs the function addsong() as if this is not there, it will not run.
+
+
+
+def openFile():
+    with open('playlists.json') as f:
+        Data = json.loads(f.read())
+        return Data
+
+def listData():
+    PlaylistsInfo = openFile()
+    for info in PlaylistsInfo:
+        print("{Name} has {Song} created by {artist}".format(**info))
+    menu()
+
+
+Login()
